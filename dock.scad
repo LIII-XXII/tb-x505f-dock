@@ -1,22 +1,64 @@
 // openscad model paremeters
 eps = .1;
 $fn = 100;
-// Tablet Dock Stand Parameters
-tablet_width = 200;              // Width of the tablet (in mm)
-tablet_height = 300;             // Height of the tablet (in mm)
-tablet_depth = 10;               // Depth of the tablet (in mm)
-dock_width = 200;                // Width of the dock stand (in mm)
-dock_depth = 50;                // Depth of the dock stand (in mm)
-dock_height = 15;               // Height of the dock stand (in mm)
-notch_angle = 30;                // Angle of the notch (in degrees)
-pin_diameter = 5;                // Diameter of the pins (in mm)
-pin_length = 5;                 // Length of the pins (in mm)
-pin_offset = 20;                 // Offset of the pins from the center (in mm)
 
-// Calculate notch dimensions
+// Tablet Dock Stand Parameters
+// all dimensions in mm
+
+tablet_width = 250;              // Width of the tablet
+tablet_height = 150;             // Height of the tablet
+tablet_depth = 9.5;              // Depth of the tablet
+
+tablet_pin_depth = 2.9;
+
+dock_width = 200;                // Width of the dock stand
+dock_depth = 50;                // Depth of the dock stand
+dock_height = 15;               // Height of the dock stand
+
+pin_diameter = 2 - eps;                // Diameter of the pins
+pin_width = 3.5 - eps; // probably actually around 4mm, it's hard to measure
+pin_length = tablet_pin_depth - 1;                  // Length of the pins
+pin_offset = (37.5 + 29.5) / 2 / 2;                 // Offset of the pins from the center
+
+notch_angle = 10;                // Angle of the notch (in degrees)
 notch_width = tablet_width;
-notch_height = tan(notch_angle) * dock_height;  // Height of the notch
-notch_depth = tablet_depth + 2;  // depth of the notch (tablet depth plus an offset)
+notch_h = 15; // bezel: 16mm
+notch_height = notch_h + tan(notch_angle) * dock_height;  // Height of the notch
+notch_depth = tablet_depth + 2 * eps;  // depth of the notch (tablet depth plus an offset)
+
+module trapezoid(w1, w2, h)
+{
+  
+}
+
+module pin_primitive()
+{
+  cylinder(d1 = pin_diameter, d2= pin_diameter/2, h = pin_length, center = true);
+}
+
+module pin_trapezoid(w) // centered
+{
+  translate([0, -w/2, 0])
+    rotate([-90,0,0])
+      linear_extrude(height=w)
+        projection(cut=false)
+          rotate([90, 0, 0])
+            pin_primitive();
+}
+
+module pin()
+{
+    spacing = pin_width/2 - pin_diameter/2;
+    translate([0, 0, pin_diameter/2])
+    union(){
+      translate([0, -spacing, 0])
+        pin_primitive();
+      pin_trapezoid(spacing*2);
+      translate([0, spacing, 0])
+        pin_primitive();
+    }
+}
+
 
 // Tablet Dock Stand
 module tabletDockStand() {
@@ -38,10 +80,10 @@ module tabletDockStand() {
     {
       rotate([0, notch_angle, 0])
         translate([0, -pin_offset / 2, -notch_height/2])
-          cylinder(d = pin_diameter, h = pin_length*2, center = true);
+          pin();
       rotate([0, notch_angle, 0])
         translate([0, pin_offset / 2, -notch_height/2])
-          cylinder(d = pin_diameter, h = pin_length*2, center = true);
+          pin();
     }
   }
 }
