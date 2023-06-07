@@ -11,7 +11,7 @@ tablet_depth = 9.5;              // Depth of the tablet
 
 tablet_pin_depth = 2.9;
 
-dock_width = 200;                // Width of the dock stand
+dock_width = 50;                // Width of the dock stand
 dock_depth = 50;                // Depth of the dock stand
 dock_height = 15;               // Height of the dock stand
 
@@ -99,7 +99,7 @@ module tabletDockStand() {
       space_y = 10;
       space_z = 5;
       pogo_z = pogopin_l3-pogopin_l1;
-      pogo_spacing = 2;
+      pogo_spacing = 3;
       
       translate([0, 0, (dock_height) / 2])
       {
