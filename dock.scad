@@ -26,11 +26,6 @@ notch_h = 15; // bezel: 16mm
 notch_height = notch_h + tan(notch_angle) * dock_height;  // Height of the notch
 notch_depth = tablet_depth + 2 * eps;  // depth of the notch (tablet depth plus an offset)
 
-module trapezoid(w1, w2, h)
-{
-  
-}
-
 module pin_primitive()
 {
   cylinder(d1 = pin_diameter, d2= pin_diameter/2, h = pin_length, center = true);
@@ -59,6 +54,29 @@ module pin()
     }
 }
 
+pogopin_l3 = 1.5;
+pogopin_l1 = .3;
+module pogopin()
+{
+  // as given by seller at https://www.amazon.co.jp/dp/B08QHCGNJ8
+  d=2;
+  d1=1.47;
+  d2=1;
+  l2=.5; // assuming spring travel distance = pin size
+  l3=pogopin_l3;
+  l=2;
+  l1=pogopin_l1;
+  union() {
+    cylinder(h=l1, r=d/2); // base
+    cylinder(l3, r=d1/2); // body
+    translate([0, 0, l3]){
+      cylinder(h=l1, r1=d1/2, r2=d2/2+eps); // chamfered neck
+      translate([0, 0, l1]){
+        cylinder(h=l2, r1=d2/2, r2=d2/4); // pin
+      }
+    }
+  }
+}
 
 // Tablet Dock Stand
 module tabletDockStand() {
@@ -71,6 +89,32 @@ module tabletDockStand() {
       translate([0, 0, dock_height / 2]) {
         rotate([0, notch_angle, 0]) {
           cube([notch_depth, notch_width + eps, notch_height], center = true);
+        }
+      }
+      
+
+      
+
+      space_x = 100;
+      space_y = 10;
+      space_z = 5;
+      pogo_z = pogopin_l3-pogopin_l1;
+      pogo_spacing = 2;
+      
+      translate([0, 0, (dock_height) / 2])
+      {
+        rotate([0, notch_angle, 0])
+        {
+          // space for cables
+          translate([space_x/2-notch_depth/2, 0, -notch_height/2 - space_z /2 - pogo_z])
+            cube([100, space_y, space_z], center=true);
+          // pogo pins
+          translate([0, 0, -notch_height/2 - pogo_z]) {
+            translate([0, -pogo_spacing/2, 0])
+              pogopin();
+            translate([0, pogo_spacing/2, 0])
+              pogopin();
+          }
         }
       }
     }
@@ -90,3 +134,4 @@ module tabletDockStand() {
 
 // Generate the Tablet Dock Stand
 tabletDockStand();
+//pogopin();
