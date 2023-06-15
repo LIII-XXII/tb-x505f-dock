@@ -103,6 +103,9 @@ module tabletDockStand() {
       
       translate([0, 0, (dock_height) / 2])
       {
+        // space for cables (out the back)
+        translate([space_x/2-notch_depth/2, 0, -notch_height/2 - space_z /2 - pogo_z])
+          cube([100, space_y, space_z], center=true);
         rotate([0, notch_angle, 0])
         {
           // space for cables
