@@ -7,7 +7,7 @@ $fn = 100;
 
 tablet_width = 250;              // Width of the tablet
 tablet_height = 150;             // Height of the tablet
-tablet_depth = 9.5;              // Depth of the tablet
+tablet_depth = 8.5 + eps;              // Depth of the tablet
 
 tablet_pin_depth = 2.9;
 
@@ -15,14 +15,14 @@ dock_width = 50;                // Width of the dock stand
 dock_depth = 50;                // Depth of the dock stand
 dock_height = 15;               // Height of the dock stand
 
-pin_diameter = 2 - eps;                // Diameter of the pins
-pin_width = 3.5 - eps; // probably actually around 4mm, it's hard to measure
+pin_diameter = 2;                // Diameter of the pins
+pin_width = 3.5; // probably actually around 4mm, it's hard to measure
 pin_length = tablet_pin_depth - 1;                  // Length of the pins
 pin_offset = (37.5 + 29.5) / 2 / 2;                 // Offset of the pins from the center
 
 notch_angle = 10;                // Angle of the notch (in degrees)
 notch_width = tablet_width;
-notch_h = 15; // bezel: 16mm
+notch_h = 16; // bezel: 16mm
 notch_height = notch_h + tan(notch_angle) * dock_height;  // Height of the notch
 notch_depth = tablet_depth + 2 * eps;  // depth of the notch (tablet depth plus an offset)
 
@@ -59,13 +59,13 @@ pogopin_l1 = .3;
 module pogopin()
 {
   // as given by seller at https://www.amazon.co.jp/dp/B08QHCGNJ8
-  d=2;
+  d=2 + 2 * eps;
   d1=1.47;
-  d2=1;
+  d2=1 + eps;
   l2=.5; // assuming spring travel distance = pin size
   l3=pogopin_l3;
   l=2;
-  l1=pogopin_l1;
+  l1=pogopin_l1 + eps;
   union() {
     cylinder(h=l1, r=d/2); // base
     cylinder(l3, r=d1/2); // body
@@ -126,10 +126,10 @@ module tabletDockStand() {
     translate([0, 0, (dock_height) / 2])
     {
       rotate([0, notch_angle, 0])
-        translate([0, -pin_offset / 2, -notch_height/2])
+        translate([0, -pin_offset, -notch_height/2])
           pin();
       rotate([0, notch_angle, 0])
-        translate([0, pin_offset / 2, -notch_height/2])
+        translate([0, pin_offset, -notch_height/2])
           pin();
     }
   }
