@@ -1,4 +1,4 @@
-// openscad model paremeters
+// openscad model parameters
 eps = .1;
 $fn = 100;
 
@@ -25,6 +25,71 @@ notch_width = tablet_width;
 notch_h = 16; // bezel: 16mm
 notch_height = notch_h + tan(notch_angle) * dock_height;  // Height of the notch
 notch_depth = tablet_depth + 2 * eps;  // depth of the notch (tablet depth plus an offset)
+
+
+// Higher definition curves
+$fs = 0.01;
+
+// from https://danielupshaw.com/openscad-rounded-corners/
+// https://gist.github.com/groovenectar/292db1688b79efd6ce11
+module roundedcube(size = [1, 1, 1], center = false, radius = 0.5, apply_to = "all") {
+	// If single value, convert to [x, y, z] vector
+	size = (size[0] == undef) ? [size, size, size] : size;
+
+	translate_min = radius;
+	translate_xmax = size[0] - radius;
+	translate_ymax = size[1] - radius;
+	translate_zmax = size[2] - radius;
+
+	diameter = radius * 2;
+
+	module build_point(type = "sphere", rotate = [0, 0, 0]) {
+		if (type == "sphere") {
+			sphere(r = radius);
+		} else if (type == "cylinder") {
+			rotate(a = rotate)
+			cylinder(h = diameter, r = radius, center = true);
+		}
+	}
+
+	obj_translate = (center == false) ?
+		[0, 0, 0] : [
+			-(size[0] / 2),
+			-(size[1] / 2),
+			-(size[2] / 2)
+		];
+
+	translate(v = obj_translate) {
+		hull() {
+			for (translate_x = [translate_min, translate_xmax]) {
+				x_at = (translate_x == translate_min) ? "min" : "max";
+				for (translate_y = [translate_min, translate_ymax]) {
+					y_at = (translate_y == translate_min) ? "min" : "max";
+					for (translate_z = [translate_min, translate_zmax]) {
+						z_at = (translate_z == translate_min) ? "min" : "max";
+
+						translate(v = [translate_x, translate_y, translate_z])
+						if (
+							(apply_to == "all") ||
+							(apply_to == "xmin" && x_at == "min") || (apply_to == "xmax" && x_at == "max") ||
+							(apply_to == "ymin" && y_at == "min") || (apply_to == "ymax" && y_at == "max") ||
+							(apply_to == "zmin" && z_at == "min") || (apply_to == "zmax" && z_at == "max")
+						) {
+							build_point("sphere");
+						} else {
+							rotate = 
+								(apply_to == "xmin" || apply_to == "xmax" || apply_to == "x") ? [0, 90, 0] : (
+								(apply_to == "ymin" || apply_to == "ymax" || apply_to == "y") ? [90, 90, 0] :
+								[0, 0, 0]
+							);
+							build_point("cylinder", rotate);
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 module pin_primitive()
 {
@@ -83,12 +148,12 @@ module tabletDockStand() {
   union() {
     difference() {
       // Base support
-      cube([dock_depth, dock_width, dock_height], center = true);
+      roundedcube([dock_depth, dock_width, dock_height], center = true, radius=3, apply_to="z");
 
       // Angled notch
       translate([0, 0, dock_height / 2]) {
         rotate([0, notch_angle, 0]) {
-          cube([notch_depth, notch_width + eps, notch_height], center = true);
+          roundedcube([notch_depth, notch_width + eps, notch_height], center = true, radius=3);
         }
       }
       
@@ -105,12 +170,12 @@ module tabletDockStand() {
       {
         // space for cables (out the back)
         translate([space_x/2-notch_depth/2, 0, -notch_height/2 - space_z /2 - pogo_z])
-          cube([100, space_y, space_z], center=true);
+          roundedcube([100, space_y, space_z], center=true);
         rotate([0, notch_angle, 0])
         {
           // space for cables
           translate([space_x/2-notch_depth/2, 0, -notch_height/2 - space_z /2 - pogo_z])
-            cube([100, space_y, space_z], center=true);
+            roundedcube([100, space_y, space_z+eps], center=true);
           // pogo pins
           translate([0, 0, -notch_height/2 - pogo_z]) {
             translate([0, -pogo_spacing/2, 0])
