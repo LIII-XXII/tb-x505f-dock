@@ -12,15 +12,15 @@ tablet_depth = 8.5 + eps;              // Depth of the tablet
 tablet_pin_depth = 2.9;
 
 dock_width = 50;                // Width of the dock stand
-dock_depth = 50;                // Depth of the dock stand
-dock_height = 15;               // Height of the dock stand
+dock_depth = 75;                // Depth of the dock stand
+dock_height = 17;               // Height of the dock stand
 
 pin_diameter = 2;                // Diameter of the pins
 pin_width = 3.5; // probably actually around 4mm, it's hard to measure
 pin_length = tablet_pin_depth - 1;                  // Length of the pins
 pin_offset = (37.5 + 29.5) / 2 / 2;                 // Offset of the pins from the center
 
-notch_angle = 10;                // Angle of the notch (in degrees)
+notch_angle = 15;                // Angle of the notch (in degrees)
 notch_width = tablet_width;
 notch_h = 16; // bezel: 16mm
 notch_height = notch_h + tan(notch_angle) * dock_height;  // Height of the notch
@@ -163,14 +163,19 @@ module tabletDockStand() {
       space_x = 100;
       space_y = 10;
       space_z = 5;
-      pogo_z = pogopin_l3-pogopin_l1;
+      pogo_z_offset = 0.5; // small offset so that the tablet does not push the pins out
+      pogo_z = pogopin_l3-pogopin_l1 + pogo_z_offset;
       pogo_spacing = 3;
       
       translate([0, 0, (dock_height) / 2])
       {
         // space for cables (out the back)
-        translate([space_x/2-notch_depth/2, 0, -notch_height/2 - space_z /2 - pogo_z])
-          roundedcube([100, space_y, space_z], center=true);
+        translate([space_x/2-notch_depth, 0, -notch_height/2 - space_z /2 - pogo_z]) {
+          roundedcube([100, space_y, space_z+0.5+eps], center=true);
+          rotate([0, -7, 0])
+            translate([0,0,5])
+              roundedcube([100, space_y, space_z+0.5+eps], center=true);
+        }
         rotate([0, notch_angle, 0])
         {
           // space for cables
@@ -186,6 +191,13 @@ module tabletDockStand() {
         }
       }
     }
+    
+    // little print support / cable tie thing at the back
+    sp_x = 3;
+    sp_y = dock_width/2;
+    sp_z = 3;
+    translate([(dock_depth-sp_x)/2, 0, -(dock_height-sp_z)/2])
+        cube([sp_x, sp_y, sp_z], center=true);
 
     // Pins
     translate([0, 0, (dock_height) / 2])
@@ -200,6 +212,6 @@ module tabletDockStand() {
   }
 }
 
-// Generate the Tablet Dock Stand
+// Generate the dock stand
 tabletDockStand();
 //pogopin();
