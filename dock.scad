@@ -124,8 +124,8 @@ pogopin_l1 = .3;
 module pogopin()
 {
   // as given by seller at https://www.amazon.co.jp/dp/B08QHCGNJ8
-  d=2 + 2 * eps;
-  d1=1.47;
+  d=2 + 4 * eps;
+  d1=1.47 + eps;
   d2=1 + eps;
   l2=.5; // assuming spring travel distance = pin size
   l3=pogopin_l3;
@@ -163,7 +163,7 @@ module tabletDockStand() {
       space_x = 100;
       space_y = 10;
       space_z = 5;
-      pogo_z_offset = 0.5; // small offset so that the tablet does not push the pins out
+      pogo_z_offset = 0.1; // small offset so that the tablet does not push the pins out
       pogo_z = pogopin_l3-pogopin_l1 + pogo_z_offset;
       pogo_spacing = 3;
       
