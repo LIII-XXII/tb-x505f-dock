@@ -146,6 +146,13 @@ module pogopin()
 // Tablet Dock Stand
 module tabletDockStand() {
   union() {
+      space_x = 100;
+      space_y = 10;
+      space_z = 5;
+      pogo_z_offset = 0.1; // small offset so that the tablet does not push the pins out
+      pogo_z = pogopin_l3-pogopin_l1 + pogo_z_offset;
+      pogo_spacing = 3;
+    
     difference() {
       // Base support
       roundedcube([dock_depth, dock_width, dock_height], center = true, radius=3, apply_to="z");
@@ -156,16 +163,6 @@ module tabletDockStand() {
           roundedcube([notch_depth, notch_width + eps, notch_height], center = true, radius=3);
         }
       }
-      
-
-      
-
-      space_x = 100;
-      space_y = 10;
-      space_z = 5;
-      pogo_z_offset = 0.1; // small offset so that the tablet does not push the pins out
-      pogo_z = pogopin_l3-pogopin_l1 + pogo_z_offset;
-      pogo_spacing = 3;
       
       translate([0, 0, (dock_height) / 2])
       {
@@ -203,11 +200,15 @@ module tabletDockStand() {
     translate([0, 0, (dock_height) / 2])
     {
       rotate([0, notch_angle, 0])
+      {
         translate([0, -pin_offset, -notch_height/2])
           pin();
-      rotate([0, notch_angle, 0])
+        // small wall to separate pins and avoid conductors touching
+        translate([-3, 0, -notch_height/2 - pogo_z])
+          cube([10,.4,2], center=true);
         translate([0, pin_offset, -notch_height/2])
           pin();
+        }
     }
   }
 }
